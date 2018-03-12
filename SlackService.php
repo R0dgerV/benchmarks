@@ -128,8 +128,6 @@ class SlackService extends Service
             throw new Exception('Not found products in pack ID = ' . $pack->getPrimaryKey());
         }
 
-//  все что ниже закоменчено, костыль из https://elementaree.atlassian.net/browse/SUP-1528
-
         try {
             $delivery = $pack->delivery;
             $subscription = $delivery->subscription;
@@ -141,18 +139,11 @@ class SlackService extends Service
 
             foreach ($products as $product) {
 
-//                if ($product->isDiet() || $product->isReady()) {
-//                    continue;
-//                }
-
             /** @var Product $subscriptionProduct */
                 if ($time <= 0
                     && $subscription instanceof Subscription
-//                    && Product::TYPE_DIET != $subscription->getProduct()->type
                     && in_array($subscription->getProduct()->type, [Product::TYPE_DIET, Product::TYPE_WOW])
                 ) {
-                    var_dump($time);
-//                    if (!$product->isReady()) {
                         /** @var Subscription $subscription */
                         $subscription = $delivery->subscription;
                         $message = 'Подписка *#* <' . $this->generateSubscriptionLink($subscription) . '|' . $subscription->id . '>' . self::NEW_LINE;
@@ -205,14 +196,12 @@ class SlackService extends Service
                             'text' => $message,
                             'mrkdwn_in' => ["text", "fallback"],
                         ];
-//                    $text = 'Обратите внимание! Создана новая подписка.';
                         $text = 'Обратите внимание! "Создана новая"/Изменена подписка.';
 
                         $attachment = new Attachment($attachment);
                         $this->sendAttachmentMessage($text, $attachment, self::CHANNEL_URGENT_BASEE_X1);
 
                         return true;
-//                    }
                 }
             }
         } catch (Exception $exp) {
